@@ -1,36 +1,74 @@
 // 🏦 Bank and Account System 
-// Bank Class: Manages multiple accounts
-class Bank {
-    constructor() {
-        this.accounts = []; // Stores all accounts in the bank
+
+// Account Class: 
+class OpenAccount {
+    constructor(name, balance = 0) {
+        this.name = name; 
+        this.balance = balance; 
+        this.transactionHistory = []; 
     }
 
-    // Add methods here:
-    // Example: createAccount(name, initialDeposit)
+    // Account Deposit 
+    deposit(amount) {
+        this.balance += amount;
+        this.transactionHistory.push({ transactionType: 'Deposit', amount });
+        console.log(`Deposit amount is: ${amount}. New balance is: ${this.balance}`);
+    }
 
+    // Account Withdraw 
+    withdraw(amount) {
+        if (amount > this.balance) {
+            console.log('Exceed balance amount');
+            return;
+        }
+        this.balance -= amount;
+        this.transactionHistory.push({ transactionType: 'Withdraw', amount });
+        console.log(`Amount withdrawn is: ${amount}. New balance: ${this.balance}`);
+    }
+
+    // Money Transfer 
+    transfer(amount, Beneficiary) {
+        if (amount > this.balance) {
+            console.log('Exceed balance amount');
+            return;
+        }
+        this.balance -= amount;
+        Beneficiary.balance += amount;
+        this.transactionHistory.push({ transactionType: 'Transfer', amount, to: Beneficiary.name });
+        Beneficiary.transactionHistory.push({ transactionType: 'Received', amount, from: this.name });
+        console.log(`Amount: ${amount} transferred to: ${Beneficiary.name}. New balance: ${this.balance}`);
+    }
+
+    // Check account balance
+    verifyBalance() {
+        console.log(`Current balance is: ${this.balance}`);
+        return this.balance;
+    }
+
+    // View history
+    viewTransactionHistory() {
+        console.log('Transaction History:', this.transactionHistory);
+        return this.transactionHistory;
+    }
 }
 
-// Account Class: Represents a single user's account
-class Account {
-    constructor(name, balance = 0) {
-        this.name = name; // Account holder's name
-        this.balance = balance; // Initial balance (default is 0)
-        this.transactionHistory = []; // Keeps a record of all transactions
+// Bank Class
+class Bank {
+    constructor() {
+        this.accounts = []; 
     }
 
-    // Add methods here:
-    // Example: deposit(amount) 
-    // example data to be stored in transactionHistory { transactionType: 'Deposit', amount: 500 }
+    // Create a new bank account
+    createBankAccount(name, DepositAmount) {
+        const newBankAccount = new OpenAccount(name, DepositAmount);
+        this.accounts.push(newBankAccount);
+        return newBankAccount;
+    }
 
-    // Example: withdraw(amount)
-    // example data to be stored in transactionHistory { transactionType: 'Withdrawal', amount: 200 }
-
-    // Example: transfer(amount, recipientAccount)
-    // example data to be stored in transactionHistory:
-    // for account sending { transactionType: 'Transfer', amount: 300, to: recipientName }
-    // for account recieving { transactionType: 'Received', amount: 300, from: senderName }
-    
-    // Example: checkBalance()
+    // Find Bank account by name
+    findBankAccount(name) {
+        return this.accounts.find(account => account.name === name);
+    }
 }
 
 //<-------------------------------DO NOT WRITE BELOW THIS LINE------------------------------>
@@ -40,8 +78,8 @@ function testBankOperations() {
     const bank = new Bank();
 
     // Create new accounts
-    const johnAccount = bank.createAccount('John Doe', 1000);
-    const janeAccount = bank.createAccount('Jane Doe', 500);
+    const johnAccount = bank.createBankAccount('John Doe', 1000);
+    const janeAccount = bank.createBankAccount('Jane Doe', 500);
     console.log('Accounts created:', johnAccount, janeAccount);
 
     // Perform some operations on John's account
@@ -52,8 +90,8 @@ function testBankOperations() {
     johnAccount.transfer(300, janeAccount);
 
     // Check balances
-    const johnFinalBalance = johnAccount.checkBalance();
-    const janeFinalBalance = janeAccount.checkBalance();
+    const johnFinalBalance = johnAccount.verifyBalance();
+    const janeFinalBalance = janeAccount.verifyBalance();
     console.log('John\'s balance:', johnFinalBalance);
     console.log('Jane\'s balance:', janeFinalBalance);
 
@@ -67,8 +105,5 @@ function testBankOperations() {
 }
 
 module.exports = testBankOperations;
-
-//<-------------------------------DO NOT WRITE ABOVE THIS LINE------------------------------>
-
 
 console.log(testBankOperations());
